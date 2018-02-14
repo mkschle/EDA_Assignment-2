@@ -12,12 +12,15 @@ SCC <- readRDS("Source_Classification_Code.rds")
 library(dplyr)
 #Mobile sources include all vehicles with gas/diesel power engines-land, water, train, etc.
 SCC.mv = SCC %>% 
-  filter(SCC.Level.One == "Mobile Sources")
+  filter(SCC.Level.One == "Mobile Sources") %>%
+  filter(grepl("Gas|Diesel", EI.Sector))
 NEI.mv = NEI %>%
   filter(SCC %in% SCC.mv$SCC) %>%
-  filter(fips == "24510")
+  filter(fips == "24510") %>%
+  left_join(SCC.mv)
+
 ggplot(data=NEI.mv) +
-  geom_bar(aes(x=factor(year), weight=Emissions)) +
+  geom_bar(aes(x=factor(year), weight=Emissions, fill = EI.Sector)) +
   xlab("Year") +
   ylab("Tons") +
   ggtitle("Baltimore City Motor Vehicle Emissions")
